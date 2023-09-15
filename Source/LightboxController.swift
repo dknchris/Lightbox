@@ -21,6 +21,8 @@ public protocol LightboxControllerTapDelegate: AnyObject {
   func lightboxController(_ controller: LightboxController, didTap image: LightboxImage, at index: Int)
     
   func lightboxController(_ controller: LightboxController, didDoubleTap image: LightboxImage, at index: Int)
+    
+  func lightboxController(_ controller: LightboxController, didLongPress image: LightboxImage, at index: Int, longPressGestureState state: UIGestureRecognizer.State)
 }
 
 public protocol LightboxControllerDeleteDelegate: AnyObject {
@@ -432,6 +434,10 @@ extension LightboxController: PageViewDelegate {
     
   func pageViewDidDoubleTap(_ pageView: PageView) {
     imageTapDelegate?.lightboxController(self, didDoubleTap: images[currentPage], at: currentPage)
+  }
+    
+  func pageViewDidLongPress(_ pageView: PageView, longPressGestureState: UIGestureRecognizer.State) {
+    imageTapDelegate?.lightboxController(self, didLongPress: images[currentPage], at: currentPage, longPressGestureState: longPressGestureState)
   }
 }
 

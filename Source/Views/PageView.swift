@@ -2,13 +2,15 @@ import UIKit
 import SDWebImage
 
 protocol PageViewDelegate: AnyObject {
-
+    
   func pageViewDidZoom(_ pageView: PageView)
   func remoteImageDidLoad(_ image: UIImage?, imageView: SDAnimatedImageView)
   func pageView(_ pageView: PageView, didTouchPlayButton videoURL: URL)
   func pageViewDidTouch(_ pageView: PageView)
   func pageViewDidTap(_ pageView: PageView)
-  func pageViewDidDoubleTap(_ pageView: PageView)}
+  func pageViewDidDoubleTap(_ pageView: PageView)
+  func pageViewDidLongPress(_ pageView: PageView, longPressGestureState: UIGestureRecognizer.State)
+}
 
 class PageView: UIScrollView {
 
@@ -95,6 +97,9 @@ class PageView: UIScrollView {
 
     let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewTapped(_:)))
     addGestureRecognizer(tapRecognizer)
+      
+    let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(viewLongPressed(_:)))
+    addGestureRecognizer(longPressRecognizer)
 
     tapRecognizer.require(toFail: doubleTapRecognizer)
   }
@@ -157,6 +162,10 @@ class PageView: UIScrollView {
   @objc func viewTapped(_ recognizer: UITapGestureRecognizer) {
     pageViewDelegate?.pageViewDidTouch(self)
     pageViewDelegate?.pageViewDidTap(self)
+  }
+
+  @objc func viewLongPressed(_ recognizer: UILongPressGestureRecognizer) {
+    pageViewDelegate?.pageViewDidLongPress(self, longPressGestureState: recognizer.state)
   }
 
   // MARK: - Layout
