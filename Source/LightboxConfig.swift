@@ -27,6 +27,13 @@ public class LightboxConfig {
       completion?(image)
     }
   }
+  
+  /// How to load image onto SDAnimatedImageView
+  public static func loadImage(_ imageView: SDAnimatedImageView, _ imageURL: URL, _ placeholderImage: UIImage? = nil, _ completion: ((UIImage?) -> Void)?) {
+    imageView.sd_setImage(with: imageURL, placeholderImage: placeholderImage) { image, error, _ , _ in
+      completion?(image)
+    }
+  }
 
   /// Indicator is used to show while image is being fetched
   public static var makeLoadingIndicator: () -> UIView = {

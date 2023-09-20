@@ -7,7 +7,7 @@ open class LightboxImage {
   open fileprivate(set) var imageURL: URL?
   open fileprivate(set) var videoURL: URL?
   open fileprivate(set) var imageClosure: (() -> UIImage)?
-  open fileprivate(set) var asyncImageLoaders: AsyncImageLoaders?
+  open fileprivate(set) var asyncLoader: AsyncLoader?
   open var text: String
 
   // MARK: - Initialization
@@ -34,20 +34,20 @@ open class LightboxImage {
     self.videoURL = videoURL
   }
     
-  public struct AsyncImageLoaders {
-    let imageClosure: () -> UIImage
-    let previewClosure: () -> UIImage
-      
-    public init(imageClosure: @escaping () -> UIImage, previewClosure: @escaping () -> UIImage) {
-      self.imageClosure = imageClosure
-      self.previewClosure = previewClosure
+  public struct AsyncLoader {
+    let imageURL: URL
+    let placeholderClosure: () -> UIImage
+    
+    public init(imageURL: URL, placeholderClosure: @escaping () -> UIImage) {
+      self.imageURL = imageURL
+      self.placeholderClosure = placeholderClosure
     }
   }
-
-  public init(asyncImageLoaders: AsyncImageLoaders, text: String = "", videoURL: URL? = nil) {
-      self.asyncImageLoaders = asyncImageLoaders
-      self.text = text
-      self.videoURL = videoURL
+  
+  public init(asyncLoader: AsyncLoader, text: String = "", videoURL: URL? = nil) {
+    self.asyncLoader = asyncLoader
+    self.text = text
+    self.videoURL = videoURL
   }
 
   open func addImageTo(_ imageView: SDAnimatedImageView, completion: ((UIImage?) -> Void)? = nil) {
@@ -60,16 +60,10 @@ open class LightboxImage {
       let img = imageClosure()
       imageView.image = img
       completion?(img)
-    } else if let asyncImageLoaders = asyncImageLoaders {
-        var img = asyncImageLoaders.previewClosure()
-        imageView.image = img
-      DispatchQueue.global(qos: .userInteractive).async {
-        img = asyncImageLoaders.imageClosure()
-        DispatchQueue.main.async {
-          imageView.image = img
-          completion?(img)
-        }
-      }
+    } else if let asyncLoader {
+      let imageURL = asyncLoader.imageURL
+      let placeholderImage = asyncLoader.placeholderClosure()
+      LightboxConfig.loadImage(imageView, imageURL, placeholderImage, completion)
     } else {
       imageView.image = nil
       completion?(nil)
